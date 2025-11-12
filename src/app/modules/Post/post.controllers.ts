@@ -3,9 +3,9 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { postServices } from './post.services';
 import httpStatus from 'http-status';
-import AppError from '../../Errors/AppError';
+import { BaseController } from '../../controllers/BaseController';
 
-class PostController {
+class PostController extends BaseController {
   // Create post
   createPost = catchAsync(async (req: Request, res: Response) => {
     const payload = req.body;
@@ -37,7 +37,7 @@ class PostController {
 
   // Get post by ID
   getPostById = catchAsync(async (req: Request, res: Response) => {
-    const id = this.getIdOrThrow(req);
+    const id = this.getParamOrThrow(req, 'id');
     const result = await postServices.getPostById(id);
 
     sendResponse(res, {
@@ -50,7 +50,7 @@ class PostController {
 
   // Update post
   updatePost = catchAsync(async (req: Request, res: Response) => {
-    const id = this.getIdOrThrow(req);
+    const id = this.getParamOrThrow(req, 'id');
     const userId = this.getUserIdOrThrow(req);
 
     const result = await postServices.updatePost(id, userId, req.body);
@@ -65,7 +65,7 @@ class PostController {
 
   // Delete post
   deletePost = catchAsync(async (req: Request, res: Response) => {
-    const id = this.getIdOrThrow(req);
+    const id = this.getParamOrThrow(req, 'id');
     const userId = this.getUserIdOrThrow(req);
 
     await postServices.deletePost(id, userId);
@@ -77,23 +77,6 @@ class PostController {
       data: null,
     });
   });
-
-  // Private helper methods
-  private getUserIdOrThrow(req: Request): string {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'User not authenticated');
-    }
-    return userId;
-  }
-
-  private getIdOrThrow(req: Request): string {
-    const { id } = req.params;
-    if (!id) {
-      throw new AppError(httpStatus.BAD_REQUEST, `Id is required`);
-    }
-    return id;
-  }
 }
 
 export const postControllers = new PostController();
