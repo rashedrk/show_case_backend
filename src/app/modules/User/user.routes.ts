@@ -8,7 +8,7 @@ const router = Router();
 
 router.post(
   '/register',
-  validateRequest(userValidation.userSchema),
+  validateRequest(userValidation.createUser),
   userControllers.createUser,
 );
 router.get('/:id', userControllers.getUserById);
@@ -16,7 +16,7 @@ router.get('/', userControllers.getAllUsers);
 router.put(
   '/',
   auth('user'),
-  validateRequest(userValidation.update),
+  validateRequest(userValidation.updateUser),
   userControllers.updateUser,
 );
 

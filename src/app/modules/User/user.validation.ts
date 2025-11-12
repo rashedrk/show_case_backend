@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-const userBodySchema = Joi.object({
+const userSchema = Joi.object({
   name: Joi.string().trim().required().messages({
     'string.empty': 'Name is required',
     'any.required': 'Name is required',
@@ -33,19 +33,18 @@ const userBodySchema = Joi.object({
 });
 
 // Create user validation schema
-const userSchema = Joi.object({
-  body: userBodySchema,
+const createUser = Joi.object({
+  body: userSchema,
 });
 
 // Update user validation schema
-const update = Joi.object({
-  body: userBodySchema.fork(
-    Object.keys(userBodySchema.describe().keys),
-    (field) => field.optional(),
+const updateUser = Joi.object({
+  body: userSchema.fork(Object.keys(userSchema.describe().keys), (field) =>
+    field.optional(),
   ),
 });
 
 export const userValidation = {
-  userSchema,
-  update,
+  createUser,
+  updateUser,
 };
