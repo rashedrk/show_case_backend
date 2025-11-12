@@ -37,8 +37,29 @@ const getAllUsers = catchAsync(async (req, res) => {
   });
 });
 
+const updateUser = catchAsync(async (req, res) => {
+  // Get user ID from JWT token (set by auth middleware)
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
+
+  const result = await userServices.updateUser(userId, req.body);
+  if (!result) {
+    throw new Error('User not found');
+  }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User updated successfully',
+    data: result,
+  });
+});
+
 export const userControllers = {
   createUser,
   getUserById,
   getAllUsers,
+  updateUser,
 };

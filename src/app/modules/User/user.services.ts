@@ -26,8 +26,21 @@ const getAllUsers = async (): Promise<TUser[]> => {
   return users;
 };
 
+const updateUser = async (
+  id: string,
+  payload: Partial<TUser>,
+): Promise<TUser | null> => {
+  const user = await User.findOne({ where: { id } });
+  if (!user) {
+    return null;
+  }
+  await user.update(payload);
+  return user;
+};
+
 export const userServices = {
   createUser,
   getUserById,
   getAllUsers,
+  updateUser,
 };
