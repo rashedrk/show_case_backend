@@ -14,7 +14,7 @@ router.post(
 router.get('/:id', userControllers.getUserById);
 router.get('/', userControllers.getAllUsers);
 router.put(
-  '/update',
+  '/',
   auth('user'),
   validateRequest(userValidation.update),
   userControllers.updateUser,
