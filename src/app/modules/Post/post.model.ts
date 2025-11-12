@@ -11,6 +11,37 @@ class Post extends Model<IPost, IPostCreationAttributes> implements IPost {
   declare userId: string;
   declare readonly createdAt?: Date;
   declare readonly updatedAt?: Date;
+
+  // Business logic
+  public isOwnedBy(userId: string): boolean {
+    return this.userId === userId;
+  }
+
+  public toSafeObject(): { [K in keyof IPost]?: IPost[K] | undefined } {
+    return {
+      id: this.id,
+      title: this.title,
+      shortDescription: this.shortDescription,
+      content: this.content,
+      userId: this.userId,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
+
+  public static async createPost(data: IPostCreationAttributes): Promise<Post> {
+    return await Post.create(data);
+  }
+
+  public static async findByUserId(userId: string): Promise<Post[]> {
+    return await Post.findAll({ where: { userId } });
+  }
+
+  public static async findWithAuthor(postId: string): Promise<Post | null> {
+    return await Post.findByPk(postId, {
+      include: [{ model: User, as: 'author' }],
+    });
+  }
 }
 
 Post.init(

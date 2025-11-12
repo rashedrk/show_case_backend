@@ -1,50 +1,66 @@
-import { IPost, IPostCreationAttributes } from './post.interface';
+import httpStatus from 'http-status';
+import { IPostCreationAttributes } from './post.interface';
 import Post from './post.model';
+import AppError from '../../Errors/AppError';
 
-const createPost = async (payload: IPostCreationAttributes): Promise<IPost> => {
-  const post = await Post.create(payload);
-  return post;
-};
-
-const getPostById = async (id: string): Promise<IPost | null> => {
-  const post = await Post.findByPk(id);
-  return post;
-};
-
-const getAllPostsByUserId = async (userId: string): Promise<IPost[]> => {
-  const posts = await Post.findAll({
-    where: { userId },
-  });
-  return posts;
-};
-
-const updatePost = async (
-  id: string,
-  userId: string,
-  payload: Partial<IPost>,
-): Promise<IPost | null> => {
-  const post = await Post.findOne({ where: { id, userId } });
-
-  if (!post) {
-    return null;
+class PostService {
+  // Create post
+  async createPost(payload: IPostCreationAttributes) {
+    const post = await Post.createPost(payload);
+    return post.toSafeObject();
   }
 
-  await post.update(payload);
-  return post;
-};
+  // Get post by id
+  async getPostById(id: string) {
+    const post = await this.findPostOrThrow(id);
+    return post.toSafeObject();
+  }
 
-const deletePost = async (id: string, userId: string): Promise<boolean> => {
-  const deletedCount = await Post.destroy({
-    where: { id, userId },
-  });
+  // Get all posts by user ID
+  async getAllPostsByUserId(userId: string) {
+    const posts = await Post.findByUserId(userId);
+    return posts.map((post) => post.toSafeObject());
+  }
 
-  return deletedCount > 0;
-};
+  // Update post
+  async updatePost(
+    id: string,
+    userId: string,
+    updateData: Partial<IPostCreationAttributes>,
+  ) {
+    const post = await this.findPostOrThrow(id);
+    this.validateOwnership(post, userId);
 
-export const postServices = {
-  createPost,
-  getAllPostsByUserId,
-  getPostById,
-  updatePost,
-  deletePost,
-};
+    await post.update(updateData);
+    return post.toSafeObject();
+  }
+
+  // Delete post
+  async deletePost(id: string, userId: string): Promise<boolean> {
+    const post = await this.findPostOrThrow(id);
+    this.validateOwnership(post, userId);
+
+    await post.destroy();
+    return true;
+  }
+
+  // Private helper methods
+  private async findPostOrThrow(id: string): Promise<Post> {
+    const post = await Post.findByPk(id);
+    if (!post) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
+    }
+    return post;
+  }
+
+  private validateOwnership(post: Post, userId: string): void {
+    if (!post.isOwnedBy(userId)) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        'You are not authorized to perform this action',
+      );
+    }
+  }
+}
+
+export const postServices = new PostService();
