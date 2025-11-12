@@ -7,9 +7,9 @@ class User extends Model<TUser, TUserCreationAttributes> {}
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -23,6 +23,19 @@ User.init(
         isEmail: true,
       },
     },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    gender: {
+      type: DataTypes.ENUM('male', 'female'),
+      allowNull: false,
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -35,7 +48,7 @@ User.init(
   },
   {
     sequelize,
-    tableName: 'users',
+    tableName: 'user',
     timestamps: true,
     updatedAt: 'updateTimestamp',
   },
