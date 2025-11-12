@@ -33,7 +33,13 @@ const getUserById = async (id: string): Promise<TUser | null> => {
   return user ? user.toJSON() : null;
 };
 
+const getAllUsers = async (): Promise<TUser[]> => {
+  const users = await User.findAll();
+  return users;
+};
+
 export const userServices = {
   createUser,
   getUserById,
+  getAllUsers,
 };
