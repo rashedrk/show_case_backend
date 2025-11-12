@@ -36,12 +36,6 @@ class Post extends Model<IPost, IPostCreationAttributes> implements IPost {
   public static async findByUserId(userId: string): Promise<Post[]> {
     return await Post.findAll({ where: { userId } });
   }
-
-  public static async findWithAuthor(postId: string): Promise<Post | null> {
-    return await Post.findByPk(postId, {
-      include: [{ model: User, as: 'author' }],
-    });
-  }
 }
 
 Post.init(
@@ -79,7 +73,7 @@ Post.init(
   },
 );
 
-// Define association
+// association
 Post.belongsTo(User, {
   foreignKey: 'userId',
   as: 'author',
