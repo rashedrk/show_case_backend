@@ -13,6 +13,21 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 
+const getUserById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    throw new Error('User ID is required');
+  }
+  const result = await userServices.getUserById(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User fetched successfully',
+    data: result,
+  });
+});
+
 export const userControllers = {
   createUser,
+  getUserById,
 };

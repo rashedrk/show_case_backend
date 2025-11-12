@@ -28,12 +28,12 @@ const createUser = async (payload: TUserCreationAttributes): Promise<TUser> => {
   return result.toJSON();
 };
 
-const getUserByEmail = async (email: string): Promise<TUser | null> => {
-  const user = await User.findOne({ where: { email } });
+const getUserById = async (id: string): Promise<TUser | null> => {
+  const user = await User.findOne({ where: { id } });
   return user ? user.toJSON() : null;
 };
 
 export const userServices = {
   createUser,
-  getUserByEmail,
+  getUserById,
 };
