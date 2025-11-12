@@ -2,7 +2,18 @@ import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../config/database';
 import { TUser, TUserCreationAttributes } from './user.interface';
 
-class User extends Model<TUser, TUserCreationAttributes> {}
+class User extends Model<TUser, TUserCreationAttributes> implements TUser {
+  declare id: string;
+  declare name: string;
+  declare email: string;
+  declare phone: string;
+  declare address: string;
+  declare gender: 'male' | 'female';
+  declare password: string;
+  declare role: 'user';
+  declare readonly createdAt?: Date;
+  declare readonly updatedAt?: Date;
+}
 
 User.init(
   {
