@@ -14,6 +14,16 @@ const loginValidation = Joi.object({
   }),
 });
 
+const refreshTokenValidation = Joi.object({
+  body: Joi.object({
+    refreshToken: Joi.string().required().messages({
+      'any.required': 'Refresh token is required',
+      'string.empty': 'Refresh token is required',
+    }),
+  }),
+});
+
 export const authValidationSchema = {
   loginValidation,
+  refreshTokenValidation,
 };

@@ -10,4 +10,6 @@ export default {
   salt_rounds: process.env.SALT_ROUNDS,
   jwt_secret: process.env.JWT_SECRET as string,
   jwt_expires_in: process.env.JWT_EXPIRES_IN || '7d',
+  jwt_refresh_secret: process.env.JWT_REFRESH_SECRET as string,
+  jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
 };
