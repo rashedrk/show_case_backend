@@ -6,7 +6,7 @@ import User from '../User/user.model';
 import { Secret } from 'jsonwebtoken';
 
 const loginUser = async (payload: TAuth) => {
-  const userData = await User.findOne({
+  const userData = await User.scope('withPassword').findOne({
     where: {
       email: payload.email,
     },

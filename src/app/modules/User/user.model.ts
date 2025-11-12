@@ -61,7 +61,14 @@ User.init(
     sequelize,
     tableName: 'user',
     timestamps: true,
-    updatedAt: 'updateTimestamp',
+    defaultScope: {
+      attributes: { exclude: ['password'] },
+    },
+    scopes: {
+      withPassword: {
+        attributes: { include: ['password'] },
+      },
+    },
   },
 );
 

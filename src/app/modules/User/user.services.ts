@@ -12,25 +12,13 @@ const createUser = async (payload: TUserCreationAttributes): Promise<TUser> => {
     ...payload,
     password: hashedPassword,
   };
-  const result = await User.create(userData, {
-    returning: [
-      'id',
-      'name',
-      'email',
-      'phone',
-      'address',
-      'gender',
-      'role',
-      'createdAt',
-      'updatedAt',
-    ],
-  });
-  return result.toJSON();
+  const result = await User.create(userData);
+  return result;
 };
 
 const getUserById = async (id: string): Promise<TUser | null> => {
   const user = await User.findOne({ where: { id } });
-  return user ? user.toJSON() : null;
+  return user;
 };
 
 const getAllUsers = async (): Promise<TUser[]> => {
