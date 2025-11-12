@@ -1,46 +1,54 @@
-import config from '../../config';
+import httpStatus from 'http-status';
+import AppError from '../../Errors/AppError';
 import { IUser, IUserCreationAttributes } from './user.interface';
 import User from './user.model';
-import bcrypt from 'bcrypt';
 
-const createUser = async (payload: IUserCreationAttributes): Promise<IUser> => {
-  const hashedPassword = await bcrypt.hash(
-    payload.password,
-    Number(config.salt_rounds),
-  );
-  const userData = {
-    ...payload,
-    password: hashedPassword,
-  };
-  const result = await User.create(userData);
-  return result;
-};
-
-const getUserById = async (id: string): Promise<IUser | null> => {
-  const user = await User.findOne({ where: { id } });
-  return user;
-};
-
-const getAllUsers = async (): Promise<IUser[]> => {
-  const users = await User.findAll();
-  return users;
-};
-
-const updateUser = async (
-  id: string,
-  payload: Partial<IUser>,
-): Promise<IUser | null> => {
-  const user = await User.findOne({ where: { id } });
-  if (!user) {
-    return null;
+class UserService {
+  // Create user
+  async createUser(
+    payload: IUserCreationAttributes,
+  ): Promise<Omit<IUser, 'password'>> {
+    const user = await User.create(payload);
+    return user.toSafeObject();
   }
-  await user.update(payload);
-  return user;
-};
 
-export const userServices = {
-  createUser,
-  getUserById,
-  getAllUsers,
-  updateUser,
-};
+  // Get user by ID
+  async getUserById(id: string): Promise<Omit<IUser, 'password'>> {
+    const user = await this.findUserOrThrow(id);
+    return user.toSafeObject();
+  }
+
+  // Get all users
+  async getAllUsers(): Promise<Omit<IUser, 'password'>[]> {
+    const users = await User.findAll();
+    return users.map((user) => user.toSafeObject());
+  }
+
+  // Update user
+  async updateUser(
+    id: string,
+    payload: Partial<IUserCreationAttributes>,
+  ): Promise<Omit<IUser, 'password'>> {
+    const user = await this.findUserOrThrow(id);
+    await user.update(payload);
+    return user.toSafeObject();
+  }
+
+  // Delete user
+  async deleteUser(id: string): Promise<boolean> {
+    const user = await this.findUserOrThrow(id);
+    await user.destroy();
+    return true;
+  }
+
+  // Private helper method
+  private async findUserOrThrow(id: string): Promise<User> {
+    const user = await User.findUserById(id);
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+    return user;
+  }
+}
+
+export const userServices = new UserService();

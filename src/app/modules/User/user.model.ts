@@ -1,6 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../config/database';
 import { IUser, IUserCreationAttributes } from './user.interface';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
 class User extends Model<IUser, IUserCreationAttributes> implements IUser {
   declare id: string;
@@ -13,6 +15,22 @@ class User extends Model<IUser, IUserCreationAttributes> implements IUser {
   declare role: 'user';
   declare readonly createdAt?: Date;
   declare readonly updatedAt?: Date;
+
+  public async comparePassword(plainPassword: string): Promise<boolean> {
+    return await bcrypt.compare(plainPassword, this.password);
+  }
+
+  public toSafeObject(): Omit<IUser, 'password'> {
+    return this.toJSON() as Omit<IUser, 'password'>;
+  }
+
+  public static async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, Number(config.salt_rounds));
+  }
+
+  public static async findUserById(id: string): Promise<User | null> {
+    return await User.findByPk(id);
+  }
 }
 
 User.init(
@@ -71,5 +89,12 @@ User.init(
     },
   },
 );
+
+// Password hashing before creation
+User.beforeCreate(async (user: User) => {
+  if (user.password) {
+    user.password = await User.hashPassword(user.password);
+  }
+});
 
 export default User;
