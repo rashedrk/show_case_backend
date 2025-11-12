@@ -1,96 +1,86 @@
+import httpStatus from 'http-status';
 import config from '../../config';
 import { generateToken } from '../../utils/JwtToken';
-import bcrypt from 'bcrypt';
-import { IAuth } from './auth.interface';
+import { IAuth, IJwtTokenPayload } from './auth.interface';
 import User from '../User/user.model';
 import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
+import AppError from '../../Errors/AppError';
 
-const loginUser = async (payload: IAuth) => {
-  const userData = await User.scope('withPassword').findOne({
-    where: {
-      email: payload.email,
-    },
-  });
+class AuthService {
+  async loginUser(payload: IAuth) {
+    const user = await this.findUserByEmail(payload.email);
 
-  if (!userData) {
-    throw new Error('User not found');
+    const isCorrectPassword = await user.comparePassword(payload.password);
+
+    if (!isCorrectPassword) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Password incorrect!');
+    }
+    const jwtPayload = this.createJwtPayload(user);
+    const accessToken = this.generateAccessToken(jwtPayload);
+    const refreshToken = this.generateRefreshToken(jwtPayload);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
-  const isCorrectPassword: boolean = await bcrypt.compare(
-    payload.password,
-    userData.password,
-  );
+  async refreshToken(token: string) {
+    // Verify refresh token
+    const decoded = jwt.verify(
+      token,
+      config.jwt_refresh_secret as Secret,
+    ) as JwtPayload;
 
-  if (!isCorrectPassword) {
-    throw new Error('Password incorrect!');
+    const user = await User.findUserById(decoded.id);
+
+    if (!user || user.email !== decoded.email) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    const jwtPayload = this.createJwtPayload(user);
+    const accessToken = this.generateAccessToken(jwtPayload);
+
+    return {
+      accessToken,
+    };
   }
 
-  const jwtPayload = {
-    name: userData.name,
-    email: userData.email,
-    id: userData.id,
-    role: userData.role,
-  };
-
-  const accessToken = generateToken(
-    jwtPayload,
-    config.jwt_secret as Secret,
-    config.jwt_expires_in as string,
-  );
-
-  const refreshToken = generateToken(
-    jwtPayload,
-    config.jwt_refresh_secret as Secret,
-    config.jwt_refresh_expires_in as string,
-  );
-
-  return {
-    accessToken,
-    refreshToken,
-  };
-};
-
-const refreshToken = async (token: string) => {
-  // Verify refresh token
-  const decoded = jwt.verify(
-    token,
-    config.jwt_refresh_secret as Secret,
-  ) as JwtPayload;
-
-  const { id, email } = decoded;
-
-  // Check if user exists
-  const user = await User.findOne({
-    where: {
-      id,
-      email,
-    },
-  });
-
-  if (!user) {
-    throw new Error('User not found');
+  // Private helper methods
+  private createJwtPayload(user: User) {
+    return {
+      name: user.name,
+      email: user.email,
+      id: user.id,
+      role: user.role,
+    };
+  }
+  private generateAccessToken(payload: IJwtTokenPayload): string {
+    return generateToken(
+      payload,
+      config.jwt_secret as Secret,
+      config.jwt_expires_in as string,
+    );
   }
 
-  const jwtPayload = {
-    name: user.name,
-    email: user.email,
-    id: user.id,
-    role: user.role,
-  };
+  private generateRefreshToken(payload: IJwtTokenPayload): string {
+    return generateToken(
+      payload,
+      config.jwt_refresh_secret as Secret,
+      config.jwt_refresh_expires_in as string,
+    );
+  }
 
-  // Generate new access token
-  const accessToken = generateToken(
-    jwtPayload,
-    config.jwt_secret as Secret,
-    config.jwt_expires_in as string,
-  );
+  private async findUserByEmail(email: string): Promise<User> {
+    const user = await User.scope('withPassword').findOne({
+      where: { email },
+    });
 
-  return {
-    accessToken,
-  };
-};
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
 
-export const authServices = {
-  loginUser,
-  refreshToken,
-};
+    return user;
+  }
+}
+export const authServices = new AuthService();
