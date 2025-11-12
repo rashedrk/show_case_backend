@@ -1,0 +1,57 @@
+import { DataTypes, Model } from 'sequelize';
+import { sequelize } from '../../config/database';
+import { IPost, IPostCreationAttributes } from './post.interface';
+import User from '../User/user.model';
+
+class Post extends Model<IPost, IPostCreationAttributes> implements IPost {
+  declare id: string;
+  declare title?: string;
+  declare shortDescription?: string;
+  declare content: string;
+  declare userId: string;
+  declare readonly createdAt?: Date;
+  declare readonly updatedAt?: Date;
+}
+
+Post.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    title: {
+      type: DataTypes.STRING,
+    },
+    shortDescription: {
+      type: DataTypes.TEXT,
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'user',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+  },
+  {
+    sequelize,
+    tableName: 'post',
+    timestamps: true,
+  },
+);
+
+// Define association
+Post.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'author',
+});
+
+export default Post;

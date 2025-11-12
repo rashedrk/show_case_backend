@@ -3,11 +3,11 @@ import { Optional } from 'sequelize';
 export interface IPost {
   id: string;
   title?: string;
-  shortDescription: string;
+  shortDescription?: string;
   content: string;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type IPostCreationAttributes = Optional<
