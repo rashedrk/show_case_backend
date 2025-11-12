@@ -2,6 +2,7 @@
 import { Server } from 'http';
 import app from './app';
 import config from './app/config';
+import { sequelize } from './app/config/database';
 
 const port = config.port || 5000;
 
@@ -9,8 +10,15 @@ let server: Server;
 
 async function main() {
   try {
+    // Connect to database
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    await sequelize.sync({ alter: true });
+    console.log('Database models synchronized.');
+
+    // Start server
     server = app.listen(port, () => {
-      console.log(`app listening on port ${port}`);
+      console.log(`Server is running on port ${port}`);
     });
 
     // Handle server errors
@@ -47,10 +55,10 @@ process.on('uncaughtException', (error: Error) => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+process.on('SIGTERM', async () => {
   if (server) {
-    server.close(() => {
+    server.close(async () => {
+      await sequelize.close();
       console.log('HTTP server closed');
       process.exit(0);
     });
