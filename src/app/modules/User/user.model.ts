@@ -1,8 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../config/database';
-import { TUser, TUserCreationAttributes } from './user.interface';
+import { IUser, IUserCreationAttributes } from './user.interface';
 
-class User extends Model<TUser, TUserCreationAttributes> implements TUser {
+class User extends Model<IUser, IUserCreationAttributes> implements IUser {
   declare id: string;
   declare name: string;
   declare email: string;

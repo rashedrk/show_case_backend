@@ -1,11 +1,11 @@
 import config from '../../config';
 import { generateToken } from '../../utils/JwtToken';
 import bcrypt from 'bcrypt';
-import { TAuth } from './auth.interface';
+import { IAuth } from './auth.interface';
 import User from '../User/user.model';
 import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
 
-const loginUser = async (payload: TAuth) => {
+const loginUser = async (payload: IAuth) => {
   const userData = await User.scope('withPassword').findOne({
     where: {
       email: payload.email,

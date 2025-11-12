@@ -1,6 +1,6 @@
 import { Optional } from 'sequelize';
 
-export interface TUser {
+export interface IUser {
   id: string;
   name: string;
   email: string;
@@ -13,7 +13,7 @@ export interface TUser {
   updatedAt?: Date;
 }
 
-export type TUserCreationAttributes = Optional<
-  TUser,
+export type IUserCreationAttributes = Optional<
+  IUser,
   'id' | 'createdAt' | 'updatedAt'
 >;

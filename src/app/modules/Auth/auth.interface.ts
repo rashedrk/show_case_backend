@@ -1,4 +1,4 @@
-export interface TAuth {
+export interface IAuth {
   email: string;
   password: string;
 }
