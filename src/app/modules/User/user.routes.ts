@@ -7,12 +7,12 @@ import auth from '../../middlewares/Auth';
 const router = Router();
 
 router.post(
-  '/register',
+  '/',
   validateRequest(userValidation.createUser),
   userControllers.createUser,
 );
-router.get('/:id', userControllers.getUserById);
 router.get('/', userControllers.getAllUsers);
+router.get('/:id', userControllers.getUserById);
 router.put(
   '/',
   auth('user'),
