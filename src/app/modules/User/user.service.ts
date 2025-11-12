@@ -13,7 +13,7 @@ const getUserByEmail = async (email: string): Promise<TUser | null> => {
   return user ? user.toJSON() : null;
 };
 
-export const userService = {
+export const userServices = {
   createUser,
   getUserByEmail,
 };
