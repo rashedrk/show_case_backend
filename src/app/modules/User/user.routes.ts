@@ -14,7 +14,7 @@ router.post(
 router.get('/', userControllers.getAllUsers);
 router.get('/me', auth('user'), userControllers.getCurrentUser);
 router.get('/:id', userControllers.getUserWithPosts);
-router.put(
+router.patch(
   '/',
   auth('user'),
   validateRequest(userValidation.updateUser),
