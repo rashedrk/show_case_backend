@@ -47,9 +47,11 @@ Post.init(
     },
     title: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     shortDescription: {
       type: DataTypes.TEXT,
+      allowNull: true,
     },
     content: {
       type: DataTypes.TEXT,
