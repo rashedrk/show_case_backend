@@ -65,4 +65,10 @@ process.on('SIGTERM', async () => {
   }
 });
 
-main();
+// Export for Vercel serverless
+export default app;
+
+// Only run main() in local development
+if (process.env.NODE_ENV !== 'production') {
+  main();
+}
