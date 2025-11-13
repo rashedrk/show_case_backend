@@ -16,7 +16,7 @@ class UserService {
   // Get all users
   async getAllUsers(): Promise<Pick<IUser, 'id' | 'name' | 'email'>[]> {
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email'],
+      attributes: ['id', 'name', 'email', 'phone', 'address'],
     });
     return users;
   }
