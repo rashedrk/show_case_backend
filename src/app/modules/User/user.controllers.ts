@@ -71,6 +71,20 @@ class UserController extends BaseController {
       data: result,
     });
   });
+
+  // Get current user
+  getCurrentUser = catchAsync(async (req: Request, res: Response) => {
+    const userId = this.getUserIdOrThrow(req);
+
+    const result = await userServices.getCurrentUser(userId);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Current user fetched successfully',
+      data: result,
+    });
+  });
 }
 
 export const userControllers = new UserController();

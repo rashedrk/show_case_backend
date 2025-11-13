@@ -66,6 +66,12 @@ class UserService {
     return user;
   }
 
+  // Get current user
+  async getCurrentUser(id: string): Promise<Omit<IUser, 'password'>> {
+    const user = await this.findUserOrThrow(id);
+    return user.toSafeObject();
+  }
+
   // Private helper method
   private async findUserOrThrow(id: string): Promise<User> {
     const user = await User.findUserById(id);

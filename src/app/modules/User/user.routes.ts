@@ -12,6 +12,7 @@ router.post(
   userControllers.createUser,
 );
 router.get('/', userControllers.getAllUsers);
+router.get('/me', auth('user'), userControllers.getCurrentUser);
 router.get('/:id', userControllers.getUserWithPosts);
 router.put(
   '/',
