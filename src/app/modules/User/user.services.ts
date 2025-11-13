@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import AppError from '../../Errors/AppError';
 import { IUser, IUserCreationAttributes } from './user.interface';
 import User from './user.model';
+import Post from '../Post/post.model';
 
 class UserService {
   // Create user
@@ -12,16 +13,12 @@ class UserService {
     return user.toSafeObject();
   }
 
-  // Get user by ID
-  async getUserById(id: string): Promise<Omit<IUser, 'password'>> {
-    const user = await this.findUserOrThrow(id);
-    return user.toSafeObject();
-  }
-
   // Get all users
-  async getAllUsers(): Promise<Omit<IUser, 'password'>[]> {
-    const users = await User.findAll();
-    return users.map((user) => user.toSafeObject());
+  async getAllUsers(): Promise<Pick<IUser, 'id' | 'name' | 'email'>[]> {
+    const users = await User.findAll({
+      attributes: ['id', 'name', 'email'],
+    });
+    return users;
   }
 
   // Update user
@@ -39,6 +36,34 @@ class UserService {
     const user = await this.findUserOrThrow(id);
     await user.destroy();
     return true;
+  }
+
+  // Get user with posts
+  async getUserWithPosts(id: string) {
+    const user = await User.findByPk(id, {
+      attributes: [
+        'id',
+        'name',
+        'email',
+        'phone',
+        'address',
+        'gender',
+        'createdAt',
+        'updatedAt',
+      ],
+      include: [
+        {
+          model: Post,
+          as: 'posts',
+        },
+      ],
+    });
+
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    return user;
   }
 
   // Private helper method

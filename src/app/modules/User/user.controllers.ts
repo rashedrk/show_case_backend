@@ -18,20 +18,6 @@ class UserController extends BaseController {
     });
   });
 
-  // Get user by ID
-  getUserById = catchAsync(async (req: Request, res: Response) => {
-    const id = this.getParamOrThrow(req, 'id');
-
-    const result = await userServices.getUserById(id);
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'User fetched successfully',
-      data: result,
-    });
-  });
-
   // Get all users
   getAllUsers = catchAsync(async (req: Request, res: Response) => {
     const result = await userServices.getAllUsers();
@@ -69,6 +55,20 @@ class UserController extends BaseController {
       success: true,
       message: 'User deleted successfully',
       data: null,
+    });
+  });
+
+  // Get user with posts
+  getUserWithPosts = catchAsync(async (req: Request, res: Response) => {
+    const id = this.getParamOrThrow(req, 'id');
+
+    const result = await userServices.getUserWithPosts(id);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User with posts fetched successfully',
+      data: result,
     });
   });
 }

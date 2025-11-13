@@ -16,12 +16,6 @@ class PostService {
     return post.toSafeObject();
   }
 
-  // Get all posts by user ID
-  async getAllPostsByUserId(userId: string) {
-    const posts = await Post.findByUserId(userId);
-    return posts.map((post) => post.toSafeObject());
-  }
-
   // Update post
   async updatePost(
     id: string,

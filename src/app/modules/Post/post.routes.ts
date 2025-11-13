@@ -6,7 +6,6 @@ import { postValidationSchema } from './post.validation';
 
 const router = Router();
 
-router.get('/user/:userId', postControllers.getAllPostsByUserId);
 router.get('/:id', postControllers.getPostById);
 
 router.post(

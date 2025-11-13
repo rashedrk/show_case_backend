@@ -21,20 +21,6 @@ class PostController extends BaseController {
     });
   });
 
-  // Get all posts by user ID
-  getAllPostsByUserId = catchAsync(async (req: Request, res: Response) => {
-    const userId = this.getUserIdOrThrow(req);
-
-    const result = await postServices.getAllPostsByUserId(userId);
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Posts retrieved successfully',
-      data: result,
-    });
-  });
-
   // Get post by ID
   getPostById = catchAsync(async (req: Request, res: Response) => {
     const id = this.getParamOrThrow(req, 'id');

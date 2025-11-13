@@ -79,4 +79,9 @@ Post.belongsTo(User, {
   as: 'author',
 });
 
+User.hasMany(Post, {
+  foreignKey: 'userId',
+  as: 'posts',
+});
+
 export default Post;
